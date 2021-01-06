@@ -1,0 +1,15 @@
+#!/bin/bash
+umount /dev/sdb1
+wipefs --all --force /dev/sdb1
+
+pvcreate /dev/sdb1
+
+vgcreate gil_vg /dev/sdb1
+
+lvcreate -n gil_docs -L 100MB gil_vg
+lvcreate -n gil_photos -L 200MB gil_vg
+lvcreate -n gil_trash -l 100%FREE gil_vg
+
+pvs
+vgs
+lvs

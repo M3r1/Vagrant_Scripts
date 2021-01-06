@@ -1,0 +1,26 @@
+#!/bin/bash
+
+umount /dev/sdb1
+umount /dev/sdb2
+
+dd if=/dev/zero of=/dev/sdb bs=1M
+
+parted /dev/sdb << EEOF
+mklabel gpt
+mkpart primary 0 500MB
+mkpart primary 500MB 1000MB
+EEOF
+
+mkfs -t ext4 /dev/sdb1
+mkfs -t xfs /dev/sdb2
+
+mkdir /mnt/ext_fs
+mkdir /mnt/xfs_fs
+
+mount -t ext4 /dev/sdb1 /mnt/ext_fs
+mount -t xfs /dev/sdb2 /mnt/xfs_fs
+
+/dev/sdb2 /mnt/xfs_fs xfs defaults 0 0
+
+sudo dd if=/dev/zero of=/mnt/ext_fs/150_file iflag=count_bytes count=150MB
+sudo dd if=/dev/zero of=/mnt/xfs_fs/150_file iflag=count_bytes count=150MB
