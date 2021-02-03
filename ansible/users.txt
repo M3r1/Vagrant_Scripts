@@ -1,0 +1,35 @@
+---
+- name: Create webservers users
+  hosts: two
+  vars_files:
+    - /home/automation/plays/vars/user_list.yml
+    - /home/automation/plays/secret.yml
+
+  tasks:
+  - name: Create users
+    ansible.builtin.user:
+      name: "{{ item.username }}"
+      groups: "wheel"
+      uid: "{{ item.uid }}"
+      shell: "/bin/bash"
+      password: "{{ user_password | password_hash('sha512') }}"
+    when: "item.uid | string | regex_search('^1')"
+    loop: "{{ users }}"
+
+
+- name: Create database users
+  hosts: database
+  vars_files:
+    - /home/automation/plays/vars/user_list.yml
+    - /home/automation/plays/secret.yml
+
+  tasks:
+  - name: Create users
+    ansible.builtin.user:
+      name: "{{ item.username }}"
+      groups: "wheel"
+      uid: "{{ item.uid }}"
+      shell: "/bin/bash"
+      password: "{{ database_password | password_hash('sha512') }}"
+    when: "item.uid | string | regex_search('^2')"
+    loop: "{{ users }}"
