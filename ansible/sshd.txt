@@ -1,0 +1,20 @@
+---
+- name: configure sshd
+  hosts: all
+
+  tasks:
+  - name: set banner
+    shell:
+      cmd: awk -i inplace 'BEGIN { replaced=0 } { if ($0 ~ /^Banner/) { replaced = 1; print "Banner /etc/motd"; } else { print $0 } } ENDFILE { if (replaced == 0) { print "Banner /etc/motd" } }' /etc/ssh/sshd_config
+
+  - name: set X11Forwarding
+    shell:
+      cmd: awk -i inplace 'BEGIN { replaced=0 } { if ($0 ~ /^X11Forwarding/) { replaced = 1; print "X11Forwarding no"; } else { print $0 } } ENDFILE { if (replaced == 0) { print "X11Forwarding no" } }' /etc/ssh/sshd_config
+
+  - name: set MaxAuthTries
+    shell:
+      cmd: awk -i inplace 'BEGIN { replaced=0 } { if ($0 ~ /^MaxAuthTries/) { replaced = 1; print "MaxAuthTries 3"; } else { print $0 } } ENDFILE { if (replaced == 0) { print "MaxAuthTries 3" } }' /etc/ssh/sshd_config
+
+  - name: restart service
+    shell:
+      cmd: systemctl reload sshd
